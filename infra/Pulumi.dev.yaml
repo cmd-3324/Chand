@@ -1,0 +1,7 @@
+config:
+  gcp:project: demo
+  gcp:region: us-central1
+  pulumi_dir:appPath: app
+  pulumi_dir:errorDocument: error.html
+  pulumi_dir:indexDocument: index.html
+  pulumi_dir:sitePath: www
