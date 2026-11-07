@@ -1,0 +1,44 @@
+📁
+├── 📁 app
+│   ├── 📁 components
+│   │   ├── 🐍 __init__.py
+│   │   └── 🐍 custom_widgets.py
+│   ├── 📁 pages
+│   │   ├── 🐍 __init__.py
+│   │   ├── 🐍 dashboard.py
+│   │   └── 🐍 report.py
+│   ├── 🐍 __init__.py
+│   └── 🐍 streamlit_app.py
+├── 📁 outputs
+├── 📁 pulumi_dir
+│   ├── 📁 app
+│   │   ├── 🐍 main.py
+│   │   └── 📝 requirements.txt
+│   ├── 📁 www
+│   │   ├── 🌐 error.html
+│   │   └── 🌐 index.html
+│   ├── 🐍 __main__.py
+│   ├── 📄 Pulumi.dev.yaml
+│   ├── 📄 Pulumi.yaml
+│   └── 📝 requirements.txt
+├── 📁 src
+│   └── 📁 chand
+│       ├── 📁 cli
+│       │   └── 🐍 __init__.py
+│       ├── 📁 core
+│       │   ├── 🐍 __init__.py
+│       │   └── 🐍 vision.py
+│       ├── 📁 display
+│       │   ├── 📁 statics
+│       │   └── 📁 templates
+│       ├── 📁 reporting
+│       │   └── 🐍 __init__.py
+│       ├── 🐍 __init__.py
+│       └── 🐍 errors.py
+├── 📁 structure
+│   └── 📝 flowchart.txt
+├── 📁 test
+│   └── 🐍 test_mock.py
+├── ⚙️ pyproject.toml
+├── 📘 README.md
+└── 📄 uv.lock

@@ -1,0 +1,23 @@
+[project]
+name = "chand"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Max Miller", email = "ali.alipour4576@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "bs4>=0.0.2",
+    "pathlib>=1.0.1",
+    "requests>=2.34.2",
+    "rich>=15.0.0",
+    "typer>=0.27.3",
+]
+
+[project.scripts]
+chand = "chand:main"
+
+[build-system]
+requires = ["uv_build>=0.12.22,<0.13.0"]
+build-backend = "uv_build"
