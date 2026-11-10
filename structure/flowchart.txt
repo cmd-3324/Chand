@@ -10,7 +10,7 @@ Chand/
 │       │   └── commands/
 │       │       ├── price.py       chand price
 │       │       ├── list_cmd.py    chand list
-│       │       └── cache_cmd.py   chand cache clear|path
+│       │       └── cache_cmd.py   chand cache clear|purge|path
 │       ├── core/
 │       │   ├── models.py          Asset, Quote, Unit, PricingResult
 │       │   ├── registry.py        supported assets, aliases, selectors
@@ -21,9 +21,11 @@ Chand/
 │       ├── providers/
 │       │   ├── base.py            Provider contract
 │       │   ├── _util.py           number/JSON/HTML parsing helpers
-│       │   ├── nobitex.py         crypto in Rial
+│       │   ├── nobitex.py         crypto in Rial, apiv2 + mirror
+│       │   ├── wallex.py          crypto in Toman
+│       │   ├── nerkhara.py        broad fiat in Toman
 │       │   ├── coingecko.py       crypto in USD
-│       │   ├── tgju.py            fiat in Rial
+│       │   ├── tgju.py            fiat in Rial, bulk + profiles
 │       │   ├── bonbast.py         free-market fiat in Toman
 │       │   └── erapi.py           USD cross-rate fallback
 │       └── formatting/

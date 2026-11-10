@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import json
+from importlib import import_module
 
 import pytest
 import responses
 from typer.testing import CliRunner
 
 from chand.cli.app import app
+from chand.core.cache import cache_dir
 
+cli_app = import_module("chand.cli.app")
 runner = CliRunner()
 
 COINGECKO_URL = "https://api.coingecko.com/api/v3/simple/price"
@@ -51,18 +54,19 @@ def test_list_shows_supported_assets() -> None:
     assert "Bitcoin" in result.output
     assert "Tether" in result.output
     assert "BTC" in result.output
+    assert "Jordanian Dinar" in result.output
+    assert "SHIB" in result.output
 
 
 def test_list_json_is_machine_readable() -> None:
     result = runner.invoke(app, ["list", "--format", "json"])
     assert result.exit_code == 0
     payload = json.loads(result.stdout)
-    assert payload[0] == {
-        "symbol": "BTC",
-        "name": "Bitcoin",
-        "kind": "crypto",
-        "aliases": ["XBT", "BITCOIN"],
-    }
+    assert payload[0]["symbol"] == "BTC"
+    assert payload[0]["name"] == "Bitcoin"
+    assert payload[0]["kind"] == "crypto"
+    assert payload[0]["aliases"][:2] == ["XBT", "BITCOIN"]
+    assert len(payload) >= 80
 
 
 def test_list_kind_filter() -> None:
@@ -165,6 +169,7 @@ def test_json_error_payload_from_environment(monkeypatch) -> None:
 @responses.activate
 def test_bare_command_shows_quick_prices(monkeypatch) -> None:
     monkeypatch.setenv("CHAND_PROVIDERS", "coingecko,tgju")
+    monkeypatch.setattr(cli_app, "DEFAULT_QUICK", ("BTC", "ETH", "USDT", "USD"))
     register_crypto_and_usd()
 
     result = runner.invoke(app, [])
@@ -177,6 +182,7 @@ def test_bare_command_shows_quick_prices(monkeypatch) -> None:
 @responses.activate
 def test_bare_web_flag_opens_quick_sources(monkeypatch) -> None:
     monkeypatch.setenv("CHAND_PROVIDERS", "coingecko,tgju")
+    monkeypatch.setattr(cli_app, "DEFAULT_QUICK", ("BTC", "ETH", "USDT", "USD"))
     register_crypto_and_usd()
     opened: list[str] = []
     monkeypatch.setattr(
@@ -214,6 +220,14 @@ def test_version() -> None:
     assert result.output.startswith("chand ")
 
 
+def _seed_cache() -> None:
+    directory = cache_dir()
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "quotes.json").write_text("{}", encoding="utf-8")
+    (directory / "nested").mkdir()
+    (directory / "nested" / "old.tmp").write_text("x", encoding="utf-8")
+
+
 def test_cache_commands() -> None:
     path_result = runner.invoke(app, ["cache", "path"])
     assert path_result.exit_code == 0
@@ -222,6 +236,35 @@ def test_cache_commands() -> None:
     clear_result = runner.invoke(app, ["cache", "clear"])
     assert clear_result.exit_code == 0
     assert "Cleared" in clear_result.output
+
+
+def test_cache_purge_aborts_without_confirmation() -> None:
+    _seed_cache()
+    result = runner.invoke(app, ["cache", "purge"], input="n\n")
+    assert result.exit_code == 1
+    assert "Aborted" in result.output
+    assert cache_dir().exists()
+
+
+def test_cache_purge_with_confirmation() -> None:
+    _seed_cache()
+    result = runner.invoke(app, ["cache", "purge"], input="y\n")
+    assert result.exit_code == 0, combined_output(result)
+    assert "Purged" in result.output
+    assert not cache_dir().exists()
+
+
+def test_cache_purge_with_yes_skips_prompt() -> None:
+    _seed_cache()
+    result = runner.invoke(app, ["cache", "purge", "--yes"])
+    assert result.exit_code == 0, combined_output(result)
+    assert not cache_dir().exists()
+
+
+def test_cache_purge_when_empty() -> None:
+    result = runner.invoke(app, ["cache", "purge", "--yes"])
+    assert result.exit_code == 0
+    assert "No cache data" in result.output
 
 
 @pytest.mark.parametrize("args", [["price", "BTC", "--watch", "0.5"]])

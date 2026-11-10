@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
 import threading
 import time
 from datetime import datetime
@@ -19,14 +20,46 @@ from typing import Any
 from platformdirs import user_cache_dir
 
 from chand.core.models import ProviderQuote
+from chand.errors import ChandError
 
 log = logging.getLogger(__name__)
 CACHE_VERSION = 1
 MAX_ENTRIES = 500
 
 
+def cache_dir() -> Path:
+    """Return Chand's cache directory.
+
+    ``CHAND_CACHE_DIR`` overrides the platform default, which is also useful
+    for tests, read-only home directories, and portable installs.
+    """
+
+    override = os.environ.get("CHAND_CACHE_DIR")
+    if override:
+        return Path(override).expanduser()
+    return Path(user_cache_dir("chand", "chand"))
+
+
 def default_cache_path() -> Path:
-    return Path(user_cache_dir("chand", "chand")) / "quotes.json"
+    return cache_dir() / "quotes.json"
+
+
+def purge_cache() -> Path:
+    """Delete every file Chand has cached for the current user.
+
+    Returns the removed directory. Missing directories are treated as success.
+    """
+
+    directory = cache_dir()
+    try:
+        if directory.exists():
+            shutil.rmtree(directory)
+    except OSError as exc:
+        raise ChandError(
+            f"Could not purge cache at {directory}: {exc}",
+            hint="Close other Chand processes and check file permissions.",
+        ) from exc
+    return directory
 
 
 class PriceCache:

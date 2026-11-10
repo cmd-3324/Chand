@@ -20,8 +20,39 @@ HOME_URL = "https://bonbast.com/"
 JSON_URL = "https://bonbast.com/json"
 TOMAN = Decimal("10")
 
-FIAT = {"USD": "usd", "EUR": "eur", "GBP": "gbp", "AED": "aed", "TRY": "try"}
+FIAT = {
+    "USD": "usd",
+    "EUR": "eur",
+    "GBP": "gbp",
+    "AED": "aed",
+    "TRY": "try",
+    "CNY": "cny",
+    "JPY": "jpy",
+    "CAD": "cad",
+    "AUD": "aud",
+    "CHF": "chf",
+    "SEK": "sek",
+    "NOK": "nok",
+    "DKK": "dkk",
+    "RUB": "rub",
+    "INR": "inr",
+    "IQD": "iqd",
+    "SYP": "syp",
+    "AFN": "afn",
+    "QAR": "qar",
+    "KWD": "kwd",
+    "BHD": "bhd",
+    "OMR": "omr",
+    "SAR": "sar",
+    "THB": "thb",
+    "MYR": "myr",
+    "SGD": "sgd",
+    "HKD": "hkd",
+    "AZN": "azn",
+    "AMD": "amd",
+}
 CRYPTO = {"BTC": "bitcoin"}
+UNITS = {"JPY": Decimal("10")}
 _PARAM = re.compile(r'param:\s*"([^"]+)"')
 
 
@@ -78,7 +109,7 @@ class BonbastProvider(Provider):
                     continue
                 results[asset.symbol] = ProviderQuote(
                     symbol=asset.symbol,
-                    price_irr=value * TOMAN,
+                    price_irr=value * TOMAN / UNITS.get(asset.symbol, Decimal(1)),
                     source=self.name,
                     source_url=f"https://bonbast.com/graph/{code}",
                 )

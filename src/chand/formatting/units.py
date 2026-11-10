@@ -1,7 +1,8 @@
 """Money formatting and Rial/Toman conversion.
 
-Values stay as Decimal until the final render. Displayed fiat amounts are
-rounded half-up to whole units, matching common Iranian market notation.
+Values stay as Decimal until the final render. Displayed amounts are rounded
+half-up to whole units for large values, while small values keep up to four
+decimals so low-priced crypto remains meaningful.
 """
 
 from __future__ import annotations
@@ -11,7 +12,9 @@ from decimal import ROUND_HALF_UP, Decimal
 from chand.core.models import RIAL_PER_TOMAN, Unit
 
 _ONE = Decimal("1")
+_THOUSAND = Decimal("1000")
 _TEN_THOUSAND = Decimal("10000")
+_FOUR_PLACES = Decimal("0.0001")
 
 
 def in_unit(price_irr: Decimal, unit: Unit) -> Decimal:
@@ -23,7 +26,11 @@ def round_whole(value: Decimal) -> int:
 
 
 def format_amount(price_irr: Decimal, unit: Unit) -> str:
-    return f"{round_whole(in_unit(price_irr, unit)):,}"
+    value = in_unit(price_irr, unit)
+    if abs(value) >= _THOUSAND:
+        return f"{round_whole(value):,}"
+    text = f"{value.quantize(_FOUR_PLACES, rounding=ROUND_HALF_UP):,f}"
+    return text.rstrip("0").rstrip(".")
 
 
 def format_usd(value: Decimal | None) -> str:
@@ -56,5 +63,7 @@ def to_json_number(value: Decimal | None, *, places: int | None = None) -> int |
     if value is None:
         return None
     if places is None:
-        return round_whole(value)
+        if abs(value) >= _THOUSAND:
+            return round_whole(value)
+        return float(round(value, 8))
     return float(round(value, places))

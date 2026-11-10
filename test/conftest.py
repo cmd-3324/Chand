@@ -11,16 +11,15 @@ _ENV_VARS = (
     "CHAND_PROVIDERS",
     "CHAND_COINGECKO_API_KEY",
     "CHAND_NO_COLOR",
+    "CHAND_CACHE_DIR",
 )
 
 
 @pytest.fixture(autouse=True)
 def clean_environment(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+    for name in _ENV_VARS:
+        monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("NO_COLOR", "1")
     monkeypatch.setenv("CHAND_CACHE_TTL", "0")
+    monkeypatch.setenv("CHAND_CACHE_DIR", str(tmp_path / "chand-cache"))
     monkeypatch.setenv("COLUMNS", "120")
-    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "localappdata"))
-    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path / "xdg-cache"))
-    for name in _ENV_VARS:
-        if name != "CHAND_CACHE_TTL":
-            monkeypatch.delenv(name, raising=False)

@@ -20,7 +20,7 @@ def price(
     assets: Annotated[
         list[str] | None,
         typer.Argument(
-            help="Assets to quote (BTC, ETH, USDT, USD, EUR, GBP, AED, TRY).",
+            help="Assets to quote; run `chand list` for every symbol and alias.",
             show_default=False,
         ),
     ] = None,

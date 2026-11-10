@@ -8,8 +8,10 @@ from chand.providers.base import Provider
 from chand.providers.bonbast import BonbastProvider
 from chand.providers.coingecko import CoinGeckoProvider
 from chand.providers.erapi import ErApiProvider
+from chand.providers.nerkhara import NerkhAraProvider
 from chand.providers.nobitex import NobitexProvider
 from chand.providers.tgju import TgjuProvider
+from chand.providers.wallex import WallexProvider
 
 __all__ = [
     "Provider",
@@ -19,13 +21,15 @@ __all__ = [
 
 _FACTORIES = {
     "nobitex": NobitexProvider,
-    "coingecko": CoinGeckoProvider,
+    "wallex": WallexProvider,
+    "nerkhara": NerkhAraProvider,
     "tgju": TgjuProvider,
     "bonbast": BonbastProvider,
+    "coingecko": CoinGeckoProvider,
     "erapi": ErApiProvider,
 }
 
-_DEFAULT_ORDER = ("nobitex", "coingecko", "tgju", "bonbast", "erapi")
+_DEFAULT_ORDER = ("nobitex", "wallex", "nerkhara", "tgju", "bonbast", "coingecko", "erapi")
 
 
 def available_providers() -> tuple[str, ...]:

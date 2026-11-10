@@ -65,6 +65,19 @@ def test_invalid_environment_values(env: dict[str, str], message: str) -> None:
         Settings.from_env(env)
 
 
+def test_default_provider_order_is_iranian_first() -> None:
+    providers = build_providers(Settings())
+    assert [provider.name for provider in providers] == [
+        "Nobitex",
+        "Wallex",
+        "NerkhAra",
+        "TGJU",
+        "Bonbast",
+        "CoinGecko",
+        "ExchangeRate-API",
+    ]
+
+
 def test_provider_factory_respects_explicit_order() -> None:
     providers = build_providers(Settings(providers=("bonbast", "tgju")))
     assert [provider.name for provider in providers] == ["Bonbast", "TGJU"]

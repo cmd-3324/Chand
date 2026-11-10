@@ -39,24 +39,14 @@ class PricingService:
         if not requested:
             return PricingResult(quotes=[], failures=[], usd_irr=None)
 
-        usd_requested = any(asset.symbol == USD for asset in requested)
-        errors: dict[str, Failure] = {}
-        usd_irr: Decimal | None = None
-
-        if usd_requested:
-            raw, raw_errors = self._resolve(requested)
-            errors.update(raw_errors)
-            usd_quote = raw.get(USD)
-            if usd_quote is not None:
-                usd_irr = usd_quote.price_irr
-        else:
-            usd_raw, _ = self._resolve([_USD_ASSET])
-            usd_quote = usd_raw.get(USD)
-            if usd_quote is not None:
-                usd_irr = usd_quote.price_irr
-            others = [asset for asset in requested if asset.symbol != USD]
-            raw, raw_errors = self._resolve(others)
-            errors.update(raw_errors)
+        targets = (
+            requested
+            if any(asset.symbol == USD for asset in requested)
+            else [_USD_ASSET, *requested]
+        )
+        raw, errors = self._resolve(targets)
+        usd_quote = raw.get(USD)
+        usd_irr = usd_quote.price_irr if usd_quote is not None else None
 
         quotes: list[Quote] = []
         failures: list[Failure] = []

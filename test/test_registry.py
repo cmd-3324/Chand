@@ -66,9 +66,19 @@ def test_select_assets_requires_a_selection() -> None:
         select_assets()
 
 
+def test_registry_covers_broad_fiat_and_crypto_markets() -> None:
+    fiat = {asset.symbol for asset in ASSETS if asset.kind is AssetKind.FIAT}
+    crypto = {asset.symbol for asset in ASSETS if asset.kind is AssetKind.CRYPTO}
+    assert len(fiat) >= 49
+    assert len(crypto) >= 35
+    assert {"JOD", "TWD", "BYN", "KZT", "UAH"} <= fiat
+    assert {"TON", "SHIB", "PEPE", "RENDER", "POL"} <= crypto
+
+
 def test_default_quick_assets_are_registered() -> None:
     symbols = {asset.symbol for asset in ASSETS}
     assert set(DEFAULT_QUICK) <= symbols
+    assert len(DEFAULT_QUICK) >= 12
 
 
 def test_filtered_assets_without_filters_returns_registry_order() -> None:

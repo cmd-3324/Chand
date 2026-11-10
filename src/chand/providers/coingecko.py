@@ -10,12 +10,48 @@ from chand.providers._util import json_payload, to_decimal
 from chand.providers.base import Provider
 
 API_URL = "https://api.coingecko.com/api/v3/simple/price"
-COINS = {"BTC": "bitcoin", "ETH": "ethereum", "USDT": "tether"}
+COINS = {
+    "BTC": "bitcoin",
+    "ETH": "ethereum",
+    "USDT": "tether",
+    "USDC": "usd-coin",
+    "XRP": "ripple",
+    "BNB": "binancecoin",
+    "SOL": "solana",
+    "DOGE": "dogecoin",
+    "TRX": "tron",
+    "ADA": "cardano",
+    "TON": "the-open-network",
+    "LINK": "chainlink",
+    "DOT": "polkadot",
+    "POL": "polygon-ecosystem-token",
+    "SHIB": "shiba-inu",
+    "LTC": "litecoin",
+    "BCH": "bitcoin-cash",
+    "XLM": "stellar",
+    "AVAX": "avalanche-2",
+    "ATOM": "cosmos",
+    "NEAR": "near",
+    "PEPE": "pepe",
+    "UNI": "uniswap",
+    "ETC": "ethereum-classic",
+    "FIL": "filecoin",
+    "APT": "aptos",
+    "ARB": "arbitrum",
+    "SUI": "sui",
+    "SEI": "sei-network",
+    "AAVE": "aave",
+    "XMR": "monero",
+    "ZEC": "zcash",
+    "HBAR": "hedera-hashgraph",
+    "ALGO": "algorand",
+    "RENDER": "render-token",
+}
 
 
 class CoinGeckoProvider(Provider):
     name = "CoinGecko"
-    priority = 15
+    priority = 40
     homepage = "https://www.coingecko.com/"
 
     def __init__(self, api_key: str | None = None) -> None:

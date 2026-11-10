@@ -6,17 +6,18 @@ from collections.abc import Sequence
 from decimal import Decimal
 
 from chand.core.http import HttpClient
-from chand.core.models import Asset, ProviderQuote
+from chand.core.models import Asset, AssetKind, ProviderQuote
+from chand.core.registry import ASSETS
 from chand.providers._util import json_payload, to_decimal
 from chand.providers.base import Provider
 
 API_URL = "https://open.er-api.com/v6/latest/USD"
-SUPPORTED = {"USD", "EUR", "GBP", "AED", "TRY"}
+SUPPORTED = {asset.symbol for asset in ASSETS if asset.kind is AssetKind.FIAT}
 
 
 class ErApiProvider(Provider):
     name = "ExchangeRate-API"
-    priority = 40
+    priority = 50
     homepage = "https://www.exchangerate-api.com/"
 
     def supports(self, asset: Asset) -> bool:

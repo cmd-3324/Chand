@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from chand.core.cache import PriceCache
+from chand.core.cache import PriceCache, cache_dir, purge_cache
 from chand.core.models import ProviderQuote
 
 
@@ -87,3 +87,20 @@ def test_keys_are_provider_scoped(tmp_path) -> None:
     cache.set("nobitex", "BTC", _quote())
     assert cache.get("nobitex", "BTC") is not None
     assert cache.get("tgju", "BTC") is None
+
+
+def test_purge_removes_the_whole_cache_directory(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CHAND_CACHE_DIR", str(tmp_path / "cache"))
+    directory = cache_dir()
+    directory.mkdir(parents=True)
+    (directory / "quotes.json").write_text("{}", encoding="utf-8")
+    (directory / "nested").mkdir()
+    (directory / "nested" / "old.tmp").write_text("x", encoding="utf-8")
+
+    assert purge_cache() == directory
+    assert not directory.exists()
+
+
+def test_purge_missing_directory_is_success(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CHAND_CACHE_DIR", str(tmp_path / "cache"))
+    assert not purge_cache().exists()

@@ -24,6 +24,12 @@ def test_amounts_round_half_up_and_use_thousands_separators() -> None:
     assert format_amount(Decimal("12345"), Unit.RIAL) == "12,345"
 
 
+def test_small_amounts_keep_meaningful_precision() -> None:
+    assert format_amount(Decimal("11.261"), Unit.TOMAN) == "1.1261"
+    assert format_amount(Decimal("715"), Unit.TOMAN) == "71.5"
+    assert format_amount(Decimal("715"), Unit.RIAL) == "715"
+
+
 def test_usd_formatting_is_adaptive() -> None:
     assert format_usd(None) == "-"
     assert format_usd(Decimal("74506.125")) == "74,506.12"
@@ -41,5 +47,6 @@ def test_change_formatting_handles_signs_and_missing_values() -> None:
 
 def test_json_numbers_avoid_floats_for_whole_values() -> None:
     assert to_json_number(Decimal("2629000.4")) == 2629000
+    assert to_json_number(Decimal("11.261")) == 11.261
     assert to_json_number(Decimal("0.123456789"), places=8) == 0.12345679
     assert to_json_number(None) is None

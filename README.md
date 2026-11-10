@@ -11,8 +11,12 @@ Toman.
 
 ## Features
 
-- Live crypto prices (BTC, ETH, USDT) and fiat rates (USD, EUR, GBP, AED, TRY)
-- Multi-provider fallback: Nobitex, CoinGecko, TGJU, Bonbast, ExchangeRate-API
+- Broad coverage: 49 fiat currencies and 35 cryptocurrencies, including
+  Gulf, Central Asian, Caucasus, and major global markets
+- Iranian-first fallback: Nobitex, Wallex, NerkhAra, TGJU, Bonbast, CoinGecko,
+  and ExchangeRate-API
+- Nobitex `apiv2` support with a legacy-domain mirror; TGJU bulk and profile
+  parsing; Wallex and NerkhAra Toman rates
 - Rial and Toman output with correct market conversion (`1 Toman = 10 Rial`)
 - Rich colorized tables with 24-hour change and the source used for each price
 - `--watch` live refresh and `-w` source-page opening in your browser
@@ -53,7 +57,7 @@ chand --help
 ## Usage
 
 ```bash
-# Quick table: BTC, ETH, USDT, USD
+# Quick table: BTC, ETH, USDT, USD, EUR, GBP, AED, TRY, CNY, JPY, CAD, XRP
 chand
 
 # Open the quick table's source pages
@@ -86,7 +90,9 @@ chand list --format json
 
 # Cache maintenance
 chand cache path
-chand cache clear
+chand cache clear       # remove the quotes file only
+chand cache purge       # confirm y/N, then remove the whole cache directory
+chand cache purge --yes # skip the prompt for scripts
 ```
 
 ### Price options
@@ -171,8 +177,9 @@ and the providers that answered.
 ```
 
 - `price` follows `--unit`; `price_irr` and `price_toman` are always present.
-- Whole Rial/Toman values are JSON integers; USD and percentage values are
-  rounded JSON numbers.
+- Large Rial/Toman values are JSON integers; small values such as SHIB or PEPE
+  retain meaningful decimal precision. USD and percentage values are rounded
+  JSON numbers.
 - Fatal errors in JSON mode are written to stderr as
   `{"error": {"kind", "message", "hint", "exit_code"}}`.
 
@@ -186,24 +193,36 @@ Environment variables are optional; CLI flags win over environment values.
 | `CHAND_FORMAT` | `table`, `json` | `table` | Default output format |
 | `CHAND_TIMEOUT` | seconds | `10` | HTTP timeout |
 | `CHAND_CACHE_TTL` | seconds | `30` | Quote cache lifetime; `0` disables |
+| `CHAND_CACHE_DIR` | path | platform cache dir | Override the cache directory |
 | `CHAND_WATCH` | seconds | `5` | Default interval used by `--watch` |
 | `CHAND_PROVIDERS` | comma list | all | Provider order/enablement |
 | `CHAND_COINGECKO_API_KEY` | string | unset | CoinGecko demo API key |
 | `CHAND_NO_COLOR` | `1`, `true` | unset | Disable colors |
 | `NO_COLOR` | any | unset | Standard no-color convention |
 
-Available provider names: `nobitex`, `coingecko`, `tgju`, `bonbast`, `erapi`.
-For example, `CHAND_PROVIDERS=tgju,bonbast` restricts Chand to Iranian scrapers.
+Available provider names: `nobitex`, `wallex`, `nerkhara`, `tgju`, `bonbast`,
+`coingecko`, `erapi`. For example,
+`CHAND_PROVIDERS=wallex,tgju,bonbast` restricts Chand to Iranian sources.
 
 ## Data sources and fallback
 
 Default order:
 
-1. **Nobitex** — crypto and USDT priced directly in Rial (public market stats).
-2. **CoinGecko** — crypto in USD; converted with the market USD/IRR rate.
-3. **TGJU** — fiat profiles in Rial with daily change.
-4. **Bonbast** — free-market fiat in Toman and Bitcoin in USD.
-5. **ExchangeRate-API** — USD cross-rates as a final fiat fallback.
+1. **Nobitex** — crypto and USDT priced directly in Rial; uses `apiv2` first
+   with the legacy API domain as a mirror.
+2. **Wallex** — crypto markets priced directly in Toman, normalized to Rial.
+3. **NerkhAra** — 44 fiat currencies and USDT in Toman from a compact JSON API.
+4. **TGJU** — 49 fiat profiles in Rial; one bulk request for large selections,
+   with per-profile fallback for currencies outside the bulk table.
+5. **Bonbast** — 28 fiat currencies in Toman and Bitcoin in USD.
+6. **CoinGecko** — broad crypto coverage in USD; converted with the market
+   USD/IRR rate.
+7. **ExchangeRate-API** — USD cross-rates as a final fiat fallback, including
+   currencies not covered by Iranian sources.
+
+TGJU quotes Japanese yen per 100 yen, Bonbast quotes it per 10 yen, and
+NerkhAra quotes it per yen; providers normalize all of them to a single-yen
+price. Toman sources are multiplied by 10 to store Rial internally.
 
 Providers are queried in batches, failures are isolated, and each successful
 quote records its source and source URL. Partial results are shown with
