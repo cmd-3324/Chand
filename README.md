@@ -1,84 +1,256 @@
 # Chand
 
-A fast and elegant CLI for live currency and cryptocurrency prices in Iranian Rial and Toman.
+A fast, elegant CLI for live currency and cryptocurrency prices in Iranian Rial
+and Toman.
 
-Chand is a Python command-line tool designed for checking online exchange rates and crypto prices in real time, with a focus on Iranian market values. It aims to make currency data easy to read in the terminal using rich tables, colorized output, and simple flags for quick queries.
+Chand fetches free-market rates and crypto prices, falls back between providers
+when one is blocked or rate-limited, and renders a clean terminal table or
+stable JSON for scripts. It is built for the Iranian market context: the USD
+rate is the cash/free-market rate, and every price can be shown in Rial or
+Toman.
 
 ## Features
 
-- Real-time currency and crypto price checks
-- Support for Iranian Rial (IRR) and Toman display formats
-- Clean, rich terminal output with readable tables and colors
-- Simple command-line interface with useful flags
-- Fast monitoring of price changes in a terminal-friendly layout
-- Suitable for checking crypto and fiat prices in an Iranian context
-
-## Example usage
-
-```bash
-# Show supported currencies and crypto assets
-chand list
-
-# Check a specific asset in rial
-chand price BTC --unit rial
-
-# Check a currency in toman
-chand price USD --unit toman
-
-# Show multiple assets at once
-chand price BTC ETH USD EUR --unit toman
-
-# Refresh prices automatically every few seconds
-chand price BTC --watch 5
-
-# Show output in JSON for scripts
-chand price BTC --format json
-```
-
-## Planned flags
-
-```bash
-chand --help
-chand price --help
-```
-
-Common options may include:
-
-- `--unit rial|toman` — choose the output currency unit
-- `--format table|json` — choose human-readable or machine-readable output
-- `--watch <seconds>` — continuously refresh prices
-- `--all` — show all supported markets
-- `--currency <code>` — search or filter by currency
-- `--crypto <symbol>` — search or filter by cryptocurrency
-- `--help` — view available commands and usage
-
-## Why Chand?
-
-Many price-checking tools are web-based or cluttered with unnecessary interfaces. Chand focuses on a straightforward terminal experience for users who want quick, readable, and informative market values in the Iranian context.
+- Live crypto prices (BTC, ETH, USDT) and fiat rates (USD, EUR, GBP, AED, TRY)
+- Multi-provider fallback: Nobitex, CoinGecko, TGJU, Bonbast, ExchangeRate-API
+- Rial and Toman output with correct market conversion (`1 Toman = 10 Rial`)
+- Rich colorized tables with 24-hour change and the source used for each price
+- `--watch` live refresh and `-w` source-page opening in your browser
+- Machine-readable JSON and newline-delimited JSON for scripts
+- Short-lived disk cache with `--no-cache`; cache is bypassed during watch
+- Shell completion, typed exit codes, and friendly typo suggestions
+- No API keys required; an optional CoinGecko demo key raises rate limits
 
 ## Requirements
 
-- Python 3.13+
-- Internet access for fetching live market data
+- Python 3.14+
+- Internet access for live data
+- [uv](https://docs.astral.sh/uv/) (recommended)
 
 ## Installation
 
 ```bash
 git clone https://github.com/cmd-3324/Chand.git
 cd Chand
-pip install -e .
+uv sync
+uv run chand --help
 ```
 
-## Run
+Install it as a global command:
 
 ```bash
-chand
+uv tool install .
+chand --version
 ```
+
+`pip` works too:
+
+```bash
+python -m pip install -e .
+chand --help
+```
+
+## Usage
+
+```bash
+# Quick table: BTC, ETH, USDT, USD
+chand
+
+# Open the quick table's source pages
+chand -w
+
+# Supported assets, names, and aliases
+chand list
+
+# Quote one asset in Rial
+chand price BTC --unit rial
+
+# Quote several assets in Toman (default)
+chand price BTC ETH USD EUR
+
+# Select by kind, or quote everything
+chand price --currency USD,EUR
+chand price --crypto BTC,ETH
+chand price --all
+
+# Refresh every 5 seconds until Ctrl+C
+chand price BTC --watch 5
+
+# Open the source page for each result in your default browser
+chand price BTC -w
+chand price BTC ETH -w
+
+# Machine-readable output
+chand price BTC --format json
+chand list --format json
+
+# Cache maintenance
+chand cache path
+chand cache clear
+```
+
+### Price options
+
+| Flag | Meaning |
+| --- | --- |
+| `--unit, -u rial\|toman` | Output unit (default Toman) |
+| `--format, -f table\|json` | Human table or machine JSON |
+| `--watch N` | Refresh every N seconds (minimum 1) |
+| `--all, -a` | Quote every supported asset |
+| `--currency USD,EUR` | Select fiat currencies |
+| `--crypto BTC,ETH` | Select cryptocurrencies |
+| `--web, -w` | Open the source page for each result |
+| `--no-cache` | Ignore and do not write cached quotes |
+| `--timeout SECONDS` | Override the HTTP timeout |
+| `--no-color` | Disable ANSI colors |
+
+`list` accepts `--currency`, `--crypto`, `--format`, `--web`, and
+`--no-color`.
+
+### Selecting assets
+
+- Positional symbols accept case-insensitive names and aliases: `btc`, `xbt`,
+  `Dollar`, `us$`.
+- Use either positional symbols, `--all`, or `--currency`/`--crypto`; mixing
+  them is rejected so intent stays unambiguous.
+- `--currency` and `--crypto` accept comma-separated values and validate the
+  asset kind (`--currency BTC` fails with a helpful hint).
+
+### Watch mode
+
+`--watch N` re-fetches every `N` seconds (minimum 1), bypasses the cache, and
+stops cleanly on Ctrl+C with exit code `130`.
+
+With `--format json`, watch mode emits one compact JSON array per line
+(NDJSON), which is easy to pipe into `jq` or another process.
+
+### Opening source pages
+
+`-w` / `--web` opens the page where the displayed value came from. Notes:
+
+- One tab per selected asset, at most 10 at a time.
+- `--watch -w` opens pages once, not on every refresh.
+- In JSON mode Chand prints the URLs to stderr instead of opening tabs, keeping
+  stdout clean for scripts.
+- If no browser can be launched, Chand warns and still prints the prices.
+
+## Output
+
+### Table
+
+```text
+Chand - live prices
+ Asset | Name      |  Price (Toman) |    24h | Source
+-------+-----------+----------------+--------+-----------
+ BTC   | Bitcoin   | 19,048,850,700 | -1.79% | CoinGecko
+ USD   | US Dollar |        259,900 | -1.54% | TGJU
+```
+
+The caption shows the local update time, the USD/IRR rate used for conversion,
+and the providers that answered.
+
+### JSON
+
+```json
+[
+  {
+    "symbol": "BTC",
+    "name": "Bitcoin",
+    "kind": "crypto",
+    "unit": "toman",
+    "price": 19048850700,
+    "price_irr": 190488507000,
+    "price_toman": 19048850700,
+    "price_usd": 73293.0,
+    "change_24h": -1.7947,
+    "source": "CoinGecko",
+    "source_url": "https://www.coingecko.com/en/coins/bitcoin",
+    "fetched_at": "2026-11-10T19:24:52.375127+00:00"
+  }
+]
+```
+
+- `price` follows `--unit`; `price_irr` and `price_toman` are always present.
+- Whole Rial/Toman values are JSON integers; USD and percentage values are
+  rounded JSON numbers.
+- Fatal errors in JSON mode are written to stderr as
+  `{"error": {"kind", "message", "hint", "exit_code"}}`.
+
+## Configuration
+
+Environment variables are optional; CLI flags win over environment values.
+
+| Variable | Values | Default | Purpose |
+| --- | --- | --- | --- |
+| `CHAND_UNIT` | `rial`, `toman` | `toman` | Default output unit |
+| `CHAND_FORMAT` | `table`, `json` | `table` | Default output format |
+| `CHAND_TIMEOUT` | seconds | `10` | HTTP timeout |
+| `CHAND_CACHE_TTL` | seconds | `30` | Quote cache lifetime; `0` disables |
+| `CHAND_WATCH` | seconds | `5` | Default interval used by `--watch` |
+| `CHAND_PROVIDERS` | comma list | all | Provider order/enablement |
+| `CHAND_COINGECKO_API_KEY` | string | unset | CoinGecko demo API key |
+| `CHAND_NO_COLOR` | `1`, `true` | unset | Disable colors |
+| `NO_COLOR` | any | unset | Standard no-color convention |
+
+Available provider names: `nobitex`, `coingecko`, `tgju`, `bonbast`, `erapi`.
+For example, `CHAND_PROVIDERS=tgju,bonbast` restricts Chand to Iranian scrapers.
+
+## Data sources and fallback
+
+Default order:
+
+1. **Nobitex** — crypto and USDT priced directly in Rial (public market stats).
+2. **CoinGecko** — crypto in USD; converted with the market USD/IRR rate.
+3. **TGJU** — fiat profiles in Rial with daily change.
+4. **Bonbast** — free-market fiat in Toman and Bitcoin in USD.
+5. **ExchangeRate-API** — USD cross-rates as a final fiat fallback.
+
+Providers are queried in batches, failures are isolated, and each successful
+quote records its source and source URL. Partial results are shown with
+warnings on stderr. The cache avoids hammering public endpoints; `--watch`
+intentionally bypasses it.
+
+## Exit codes
+
+| Code | Meaning |
+| --- | --- |
+| `0` | Success (partial provider failures may still exit 0) |
+| `2` | Usage error, unknown asset, invalid selection |
+| `3` | Network failure |
+| `4` | Provider/data failure, no usable prices |
+| `5` | Invalid configuration |
+| `6` | Browser failure (reserved; browser errors normally warn) |
+| `130` | Interrupted with Ctrl+C |
+
+## Development
+
+```bash
+uv sync --group dev
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+```
+
+Project layout:
+
+```text
+src/chand/
+  cli/         Typer app, commands, watch/live rendering
+  core/        models, registry, config, HTTP, cache, pricing service
+  providers/   one adapter per data source
+  formatting/  units, Rich tables, JSON, browser helper
+test/          offline provider, service, cache, browser, and CLI tests
+```
+
+All tests are offline: HTTP is mocked with recorded payloads, and the browser is
+stubbed.
 
 ## Disclaimer
 
-This project is intended for informational use only. Exchange rates and cryptocurrency prices can change rapidly, and the data should be verified through trusted sources before making financial decisions.
+This project is for informational use only. Exchange rates and cryptocurrency
+prices change rapidly and may differ between sources. Verify data with trusted
+sources before making financial decisions.
 
 ## License
 
-This project is currently under active development.
+Under active development; no license has been finalized yet.

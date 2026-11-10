@@ -10,3 +10,7 @@ wheels/
 .venv
 .env
 outputs/
+
+# Local uv cache/work dirs used when the system drive is full
+.uv-cache/
+.uv-tmp/

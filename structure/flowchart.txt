@@ -1,44 +1,50 @@
-📁
-├── 📁 app
-│   ├── 📁 components
-│   │   ├── 🐍 __init__.py
-│   │   └── 🐍 custom_widgets.py
-│   ├── 📁 pages
-│   │   ├── 🐍 __init__.py
-│   │   ├── 🐍 dashboard.py
-│   │   └── 🐍 report.py
-│   ├── 🐍 __init__.py
-│   └── 🐍 streamlit_app.py
-├── 📁 outputs
-├── 📁 pulumi_dir
-│   ├── 📁 app
-│   │   ├── 🐍 main.py
-│   │   └── 📝 requirements.txt
-│   ├── 📁 www
-│   │   ├── 🌐 error.html
-│   │   └── 🌐 index.html
-│   ├── 🐍 __main__.py
-│   ├── 📄 Pulumi.dev.yaml
-│   ├── 📄 Pulumi.yaml
-│   └── 📝 requirements.txt
-├── 📁 src
-│   └── 📁 chand
-│       ├── 📁 cli
-│       │   └── 🐍 __init__.py
-│       ├── 📁 core
-│       │   ├── 🐍 __init__.py
-│       │   └── 🐍 vision.py
-│       ├── 📁 display
-│       │   ├── 📁 statics
-│       │   └── 📁 templates
-│       ├── 📁 reporting
-│       │   └── 🐍 __init__.py
-│       ├── 🐍 __init__.py
-│       └── 🐍 errors.py
-├── 📁 structure
-│   └── 📝 flowchart.txt
-├── 📁 test
-│   └── 🐍 test_mock.py
-├── ⚙️ pyproject.toml
-├── 📘 README.md
-└── 📄 uv.lock
+Chand/
+├── src/
+│   └── chand/
+│       ├── __init__.py            package version and compatibility main
+│       ├── __main__.py            python -m chand
+│       ├── errors.py              typed errors and exit codes
+│       ├── cli/
+│       │   ├── app.py             Typer root, quick table, version
+│       │   ├── common.py          settings, service lifecycle, watch mode
+│       │   └── commands/
+│       │       ├── price.py       chand price
+│       │       ├── list_cmd.py    chand list
+│       │       └── cache_cmd.py   chand cache clear|path
+│       ├── core/
+│       │   ├── models.py          Asset, Quote, Unit, PricingResult
+│       │   ├── registry.py        supported assets, aliases, selectors
+│       │   ├── config.py          environment settings
+│       │   ├── http.py            session, retries, network error mapping
+│       │   ├── cache.py           crash-safe TTL disk cache
+│       │   └── service.py         provider fallback and conversion
+│       ├── providers/
+│       │   ├── base.py            Provider contract
+│       │   ├── _util.py           number/JSON/HTML parsing helpers
+│       │   ├── nobitex.py         crypto in Rial
+│       │   ├── coingecko.py       crypto in USD
+│       │   ├── tgju.py            fiat in Rial
+│       │   ├── bonbast.py         free-market fiat in Toman
+│       │   └── erapi.py           USD cross-rate fallback
+│       └── formatting/
+│           ├── units.py           Rial/Toman conversion and formatting
+│           ├── table.py           Rich tables and failure warnings
+│           ├── json_out.py        stable JSON and NDJSON
+│           ├── browser.py         safe source-page opening
+│           └── errors.py          table/JSON error rendering
+├── test/
+│   ├── conftest.py
+│   ├── test_cli.py
+│   ├── test_service.py
+│   ├── test_providers.py
+│   ├── test_cache.py
+│   ├── test_config.py
+│   ├── test_registry.py
+│   ├── test_units.py
+│   └── test_browser.py
+├── app/                           legacy Streamlit UI (out of scope)
+├── infra/                         legacy Pulumi deployment (out of scope)
+├── pyproject.toml
+├── uv.lock
+├── .python-version
+└── README.md

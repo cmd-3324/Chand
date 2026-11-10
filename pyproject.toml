@@ -6,18 +6,46 @@ readme = "README.md"
 authors = [
     { name = "Max Miller", email = "ali.alipour4576@gmail.com" }
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
-    "bs4>=0.0.2",
-    "pathlib>=1.0.1",
-    "requests>=2.34.2",
+    "beautifulsoup4>=4.15.0",
+    "platformdirs>=4.5.0",
+    "requests>=2.34.0",
     "rich>=15.0.0",
-    "typer>=0.27.3",
+    "typer>=0.27.0",
 ]
 
 [project.scripts]
-chand = "chand:main"
+chand = "chand.cli.app:main"
 
 [build-system]
 requires = ["uv_build>=0.12.22,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "responses>=0.25.0",
+    "ruff>=0.14.0",
+]
+
+[tool.uv.build-backend]
+source-exclude = ["/.uv-cache", "/.uv-tmp", "/dist"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+addopts = "-q"
+filterwarnings = ["error::DeprecationWarning:chand.*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = ["src", "test"]
+extend-exclude = ["infra", "app", "outputs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"test/*" = ["S101"]
