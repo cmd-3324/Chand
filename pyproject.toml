@@ -1,7 +1,7 @@
 [project]
 name = "chand"
 version = "0.1.0"
-description = "Add your description here"
+description = "A terminal CLI for online currency and cryptocurrency prices in Iranian Rial and Toman."
 readme = "README.md"
 authors = [
     { name = "Max Miller", email = "ali.alipour4576@gmail.com" }
