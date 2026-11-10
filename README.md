@@ -1,72 +1,84 @@
 # Chand
 
-**Live currency and cryptocurrency prices, right from your terminal.**
+A fast and elegant CLI for live currency and cryptocurrency prices in Iranian Rial and Toman.
 
-Chand is a Python command-line tool in development for checking online market prices in Iranian Rial (IRR) and Toman. Its goal is to make exchange rates and crypto prices quick to look up, easy to compare, and pleasant to read—with clean, color-rich terminal output.
+Chand is a Python command-line tool designed for checking online exchange rates and crypto prices in real time, with a focus on Iranian market values. It aims to make currency data easy to read in the terminal using rich tables, colorized output, and simple flags for quick queries.
 
-> **Status:** Chand is currently an early-stage project. The market-data commands and options shown below describe the intended interface and are not implemented yet. Prices and data sources will be documented here once available.
+## Features
 
-## Planned features
+- Real-time currency and crypto price checks
+- Support for Iranian Rial (IRR) and Toman display formats
+- Clean, rich terminal output with readable tables and colors
+- Simple command-line interface with useful flags
+- Fast monitoring of price changes in a terminal-friendly layout
+- Suitable for checking crypto and fiat prices in an Iranian context
 
-- Look up currency exchange rates and cryptocurrency prices online.
-- Display amounts in Iranian Rial or Toman, with clear unit labels.
-- Present results in readable, colorized terminal tables.
-- Filter by asset, choose a display unit, and request machine-readable output.
-- Show when quotes were retrieved so you can judge their freshness.
+## Example usage
 
-## Planned command-line interface
-
-The following examples illustrate the intended interface; they are not yet functional:
-
-```console
-# Show available currencies and cryptocurrencies
+```bash
+# Show supported currencies and crypto assets
 chand list
 
-# Look up selected assets, displayed in toman
-chand price USD BTC --unit toman
+# Check a specific asset in rial
+chand price BTC --unit rial
 
-# Request JSON output for scripts
-chand price BTC --format json
+# Check a currency in toman
+chand price USD --unit toman
 
-# Refresh quotes periodically
+# Show multiple assets at once
+chand price BTC ETH USD EUR --unit toman
+
+# Refresh prices automatically every few seconds
 chand price BTC --watch 5
+
+# Show output in JSON for scripts
+chand price BTC --format json
 ```
 
-The planned options include:
+## Planned flags
 
-| Option | Purpose |
-| --- | --- |
-| `--unit rial\|toman` | Choose the display unit for Iranian currency values. |
-| `--format table\|json` | Choose human-friendly or machine-readable output. |
-| `--watch SECONDS` | Refresh the displayed quote at an interval. |
-| `--help` | Show help for a command. |
-
-Exact command names and flags may change as the project develops. Chand is intended for informational use; market quotes can change quickly and should not be treated as financial advice.
-
-## Getting started
-
-Chand requires Python 3.13 or newer. To run the current development scaffold from a clone:
-
-```console
-uv sync
-uv run chand
+```bash
+chand --help
+chand price --help
 ```
 
-At this stage, the command only prints a greeting; price lookup is not available yet.
+Common options may include:
 
-## Development
+- `--unit rial|toman` — choose the output currency unit
+- `--format table|json` — choose human-readable or machine-readable output
+- `--watch <seconds>` — continuously refresh prices
+- `--all` — show all supported markets
+- `--currency <code>` — search or filter by currency
+- `--crypto <symbol>` — search or filter by cryptocurrency
+- `--help` — view available commands and usage
 
-Install dependencies and run the test suite with [uv](https://docs.astral.sh/uv/):
+## Why Chand?
 
-```console
-uv sync
-uv run pytest
+Many price-checking tools are web-based or cluttered with unnecessary interfaces. Chand focuses on a straightforward terminal experience for users who want quick, readable, and informative market values in the Iranian context.
+
+## Requirements
+
+- Python 3.13+
+- Internet access for fetching live market data
+
+## Installation
+
+```bash
+git clone https://github.com/cmd-3324/Chand.git
+cd Chand
+pip install -e .
 ```
 
-## Contributing
+## Run
 
-Issues and pull requests are welcome. As the project takes shape, contributions around reliable data sources, clear Rial/Toman conversions, and accessible terminal output will be especially useful.
+```bash
+chand
+```
 
 ## Disclaimer
 
-Exchange rates and cryptocurrency prices are volatile. Verify important figures with a trusted source before making financial decisions.
+This project is intended for informational use only. Exchange rates and cryptocurrency prices can change rapidly, and the data should be verified through trusted sources before making financial decisions.
+
+## License
+
+This project is currently under active development.
