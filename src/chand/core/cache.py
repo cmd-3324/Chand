@@ -86,7 +86,7 @@ class PriceCache:
                 return None
             try:
                 return _decode_quote(entry["quote"])
-            except KeyError, TypeError, ValueError, InvalidOperation:
+            except (KeyError, TypeError, ValueError, InvalidOperation):
                 self._entries.pop(key, None)
                 self._dirty = True
                 return None
